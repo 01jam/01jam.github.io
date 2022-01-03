@@ -5,8 +5,191 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>01Jam</title>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+
+			html {
+				background: #51658c;
+			}
+
+			html,
+			body {
+				color: #ffffff;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+					"Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+					"Droid Sans", "Helvetica Neue", sans-serif;
+			}
+
+			html,
+			body,
+			#root {
+				height: 100%;
+			}
+
+			body {
+				margin: 0;
+				font-size: 18px;
+			}
+
+			ul,
+			li {
+				padding: 0;
+				margin: 0;
+				list-style-type: none;
+			}
+
+			div {
+				display: flex;
+				flex-direction: column;
+			}
+
+			a {
+				color: inherit;
+				text-decoration: inherit;
+			}
+
+			#root {
+				align-items: center;
+				justify-content: center;
+			}
+
+			.list {
+				max-width: 150px;
+				width: 100%;
+				row-gap: 1rem;
+				display: flex;
+				flex-direction: column;
+			}
+
+			.list > li {
+				width: 100%;
+			}
+
+			.list-item {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				background-color: rgba(212, 88, 48, 0.2);
+				border-radius: 0.5rem;
+				overflow: hidden;
+				transition: 0.25s ease;
+			}
+
+			@media (hover: hover) {
+				.list-item:hover {
+					opacity: 0.75;
+					transform: scale(1.05);
+				}
+			}
+
+			.list-item > * {
+				padding: 1rem;
+			}
+
+			.list-item-icon {
+				background-color: rgba(212, 88, 48, 0.4);
+				flex: 0;
+			}
+
+			.list-item-icon > i {
+				font-size: 1.5rem;
+			}
+
+			.list-item-label {
+				flex: 1;
+				width: 100%;
+			}
+
+			.bg-violet-light {
+				background: rgba(41, 40, 65, 0.2);
+			}
+			.bg-violet-dark {
+				background: rgba(41, 40, 65, 0.4);
+			}
+
+			.bg-black-light {
+				background: rgba(0, 0, 0, 0.2);
+			}
+			.bg-black-dark {
+				background: rgba(0, 0, 0, 0.4);
+			}
+
+			.bg-white-light {
+				background: rgba(246, 248, 250, 0.2);
+			}
+			.bg-white-dark {
+				background: rgba(246, 248, 250, 4);
+				color: #1f1f1f;
+			}
+
+			.bg-fucsia-light {
+				background: rgba(92, 22, 197, 0.2);
+			}
+			.bg-fucsia-dark {
+				background: rgba(92, 22, 197, 0.4);
+			}
+		</style>
+		<link
+			rel="stylesheet"
+			href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+			integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p"
+			crossorigin="anonymous"
+		/>
 	</head>
 	<body>
-		<h1>Hello World</h1>
+		<div id="root">
+			<ul class="list">
+				<li>
+					<a
+						class="list-item bg-fucsia-light"
+						target="_blank"
+						href="https://www.twitch.tv/01jam"
+					>
+						<div class="list-item-icon bg-fucsia-dark">
+							<i class="fab fa-twitch"></i>
+						</div>
+						<div class="list-item-label">Twitch</div>
+					</a>
+				</li>
+				<li>
+					<a
+						class="list-item bg-white-light"
+						target="_blank"
+						href="https://github.com/01jam"
+					>
+						<div class="list-item-icon bg-white-dark">
+							<i class="fab fa-github-square"></i>
+						</div>
+						<div class="list-item-label">Github</div>
+					</a>
+				</li>
+				<li>
+					<a
+						class="list-item bg-black-light"
+						target="_blank"
+						href="https://dev.to/01jam"
+					>
+						<div class="list-item-icon bg-black-dark">
+							<i class="fab fa-dev"></i>
+						</div>
+						<div class="list-item-label">Dev.to</div>
+					</a>
+				</li>
+				<li>
+					<a
+						class="list-item bg-violet-light"
+						target="_blank"
+						href="https://discord.com/invite/DYTAgUUuZt"
+					>
+						<div class="list-item-icon bg-violet-dark">
+							<i class="fab fa-discord"></i>
+						</div>
+						<div class="list-item-label">Discord</div>
+					</a>
+				</li>
+			</ul>
+		</div>
 	</body>
 </html>
