@@ -3,188 +3,297 @@
 
 <head>
 	<meta charset="UTF-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>01Jam</title>
+	<meta name="description" content="Things I build, and where to find me." />
+	<meta name="theme-color" content="#51658c" />
 	<style>
+		:root {
+			--bg: #51658c;
+			--bg-deep: #3d4d6d;
+			--text: #ffffff;
+			--muted: rgb(255 255 255 / 0.66);
+			--surface: rgb(255 255 255 / 0.08);
+			--surface-hi: rgb(255 255 255 / 0.13);
+			--line: rgb(255 255 255 / 0.16);
+			--line-hi: rgb(255 255 255 / 0.34);
+		}
+
 		* {
 			box-sizing: border-box;
 		}
 
-		html {
-			background: #51658c;
-		}
-
-		html,
-		body {
-			color: #ffffff;
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-				"Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
-				"Droid Sans", "Helvetica Neue", sans-serif;
-		}
-
-		html,
-		body,
-		#root {
-			height: 100%;
-		}
-
 		body {
 			margin: 0;
-			font-size: 18px;
-		}
-
-		ul,
-		li {
-			padding: 0;
-			margin: 0;
-			list-style-type: none;
-		}
-
-		div {
+			min-height: 100dvh;
 			display: flex;
 			flex-direction: column;
+			justify-content: center;
+			padding: 56px 24px;
+			background: var(--bg);
+			background-image:
+				radial-gradient(52rem 30rem at 18% -6rem, rgb(255 255 255 / 0.12), transparent 68%),
+				linear-gradient(160deg, var(--bg), var(--bg-deep));
+			background-attachment: fixed;
+			color: var(--text);
+			font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+			font-size: 17px;
+			line-height: 1.55;
+			-webkit-font-smoothing: antialiased;
+		}
+
+		main {
+			width: 100%;
+			max-width: 720px;
+			margin: 0 auto;
 		}
 
 		a {
 			color: inherit;
-			text-decoration: inherit;
+			text-decoration: none;
 		}
 
-		#root {
+		h1 {
+			margin: 0;
+			font-size: 40px;
+			line-height: 1.1;
+		}
+
+		.tagline {
+			margin: 10px 0 0;
+			color: var(--muted);
+			font-size: 18px;
+		}
+
+		h2 {
+			margin: 0 0 14px;
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--muted);
+		}
+
+		section {
+			margin-top: 44px;
+		}
+
+		ul {
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		/* ---------- projects ---------- */
+
+		.cards {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+			gap: 14px;
+		}
+
+		.card {
+			display: block;
+			height: 100%;
+			padding: 20px;
+			border: 1px solid var(--line);
+			border-radius: 14px;
+			background: var(--surface);
+			transition: background .2s ease, border-color .2s ease, transform .2s ease;
+		}
+
+		.card-head {
+			display: flex;
 			align-items: center;
-			justify-content: center;
+			gap: 13px;
 		}
 
-		.list {
-			max-width: 150px;
-			width: 100%;
-			row-gap: 1rem;
+		.card-head img {
+			width: 44px;
+			height: 44px;
+			flex: none;
+		}
+
+		.card-head h3 {
+			margin: 0;
+			font-size: 18px;
+			line-height: 1.25;
+		}
+
+		.card p {
+			margin: 14px 0 0;
+			color: var(--muted);
+			font-size: 15.5px;
+		}
+
+		.tags {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 7px;
+			margin-top: 16px;
+		}
+
+		.tags span {
+			padding: 3px 9px;
+			border: 1px solid var(--line);
+			border-radius: 999px;
+			font-size: 12.5px;
+			color: var(--muted);
+		}
+
+		/* ---------- links ---------- */
+
+		.links {
 			display: flex;
 			flex-direction: column;
+			gap: 10px;
 		}
 
-		.list>li {
-			width: 100%;
-		}
-
-		.list-item {
+		.link {
 			display: flex;
-			flex-direction: row;
 			align-items: center;
-			background-color: rgba(212, 88, 48, 0.2);
-			border-radius: 0.5rem;
-			overflow: hidden;
-			transition: 0.25s ease;
+			gap: 14px;
+			padding: 11px 16px 11px 11px;
+			border: 1px solid var(--line);
+			border-radius: 12px;
+			background: var(--surface);
+			transition: background .2s ease, border-color .2s ease, transform .2s ease;
+		}
+
+		.link-icon {
+			display: grid;
+			place-items: center;
+			width: 38px;
+			height: 38px;
+			flex: none;
+			border-radius: 9px;
+			background: rgb(0 0 0 / 0.22);
+		}
+
+		.link-icon svg {
+			width: 19px;
+			height: 19px;
+			fill: currentColor;
+		}
+
+		.link-name {
+			flex: 1;
+			font-weight: 500;
+		}
+
+		.link-at {
+			color: var(--muted);
+			font-size: 14.5px;
+		}
+
+		.twitch .link-icon {
+			background: #9146ff;
+		}
+
+		.github .link-icon {
+			background: #171515;
+		}
+
+		.devto .link-icon {
+			background: #0a0a0a;
 		}
 
 		@media (hover: hover) {
-			.list-item:hover {
-				opacity: 0.75;
-				transform: scale(1.05);
+
+			.card:hover,
+			.link:hover {
+				background: var(--surface-hi);
+				border-color: var(--line-hi);
+				transform: translateY(-2px);
 			}
 		}
 
-		.list-item>* {
-			padding: 1rem;
+		.card:focus-visible,
+		.link:focus-visible {
+			outline: 2px solid #ffffff;
+			outline-offset: 3px;
 		}
 
-		.list-item-icon {
-			background-color: rgba(212, 88, 48, 0.4);
-			flex: 0;
-		}
+		@media (prefers-reduced-motion: reduce) {
 
-		.list-item-icon>i {
-			font-size: 1.5rem;
-		}
+			.card,
+			.link {
+				transition: none;
+			}
 
-		.list-item-label {
-			flex: 1;
-			width: 100%;
-		}
-
-		.bg-violet-light {
-			background: rgba(41, 40, 65, 0.2);
-		}
-
-		.bg-violet-dark {
-			background: rgba(41, 40, 65, 0.4);
-		}
-
-		.bg-black-light {
-			background: rgba(0, 0, 0, 0.2);
-		}
-
-		.bg-black-dark {
-			background: rgba(0, 0, 0, 0.4);
-		}
-
-		.bg-white-light {
-			background: rgba(246, 248, 250, 0.2);
-		}
-
-		.bg-white-dark {
-			background: rgba(246, 248, 250, 4);
-			color: #1f1f1f;
-		}
-
-		.bg-fucsia-light {
-			background: rgba(92, 22, 197, 0.2);
-		}
-
-		.bg-fucsia-dark {
-			background: rgba(92, 22, 197, 0.4);
+			.card:hover,
+			.link:hover {
+				transform: none;
+			}
 		}
 	</style>
-	<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
-		integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
 </head>
 
 <body>
-	<div id="root">
-		<ul class="list">
-			<li>
-				<a class="list-item" href="/claude-account-switcher/">
-					<div class="list-item-icon">
-						<i class="fas fa-exchange-alt"></i>
+	<main>
+		<header>
+			<h1>01Jam</h1>
+			<p class="tagline">Things I build, and where to find me.</p>
+		</header>
+
+		<section>
+			<h2>Projects</h2>
+			<div class="cards">
+				<a class="card" href="claude-account-switcher/">
+					<div class="card-head">
+						<img src="claude-account-switcher/img/icon.png" width="44" height="44"
+							alt="" />
+						<h3>Claude Account Switcher</h3>
 					</div>
-					<div class="list-item-label">Claude Switcher</div>
-				</a>
-			</li>
-			<li>
-				<a class="list-item bg-fucsia-light" target="_blank" href="https://www.twitch.tv/01jam">
-					<div class="list-item-icon bg-fucsia-dark">
-						<i class="fab fa-twitch"></i>
+					<p>Several Claude Code logins side by side on Linux, switched from the window or the
+						top bar — with usage meters that can hand over on their own.</p>
+					<div class="tags">
+						<span>Tauri 2</span>
+						<span>React</span>
+						<span>Linux</span>
 					</div>
-					<div class="list-item-label">Twitch</div>
 				</a>
-			</li>
-			<li>
-				<a class="list-item bg-white-light" target="_blank" href="https://github.com/01jam">
-					<div class="list-item-icon bg-white-dark">
-						<i class="fab fa-github-square"></i>
-					</div>
-					<div class="list-item-label">Github</div>
-				</a>
-			</li>
-			<li>
-				<a class="list-item bg-black-light" target="_blank" href="https://dev.to/01jam">
-					<div class="list-item-icon bg-black-dark">
-						<i class="fab fa-dev"></i>
-					</div>
-					<div class="list-item-label">Dev.to</div>
-				</a>
-			</li>
-			<li>
-				<a class="list-item bg-violet-light" target="_blank" href="https://discord.com/invite/DYTAgUUuZt">
-					<div class="list-item-icon bg-violet-dark">
-						<i class="fab fa-discord"></i>
-					</div>
-					<div class="list-item-label">Discord</div>
-				</a>
-			</li>
-		</ul>
-	</div>
+			</div>
+		</section>
+
+		<section>
+			<h2>Elsewhere</h2>
+			<ul class="links">
+				<li>
+					<a class="link twitch" href="https://www.twitch.tv/01jam" target="_blank"
+						rel="noopener">
+						<span class="link-icon">
+							<svg viewBox="0 0 24 24" aria-hidden="true">
+								<path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
+							</svg>
+						</span>
+						<span class="link-name">Twitch</span>
+						<span class="link-at">01jam</span>
+					</a>
+				</li>
+				<li>
+					<a class="link github" href="https://github.com/01jam" target="_blank" rel="noopener">
+						<span class="link-icon">
+							<svg viewBox="0 0 24 24" aria-hidden="true">
+								<path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+							</svg>
+						</span>
+						<span class="link-name">GitHub</span>
+						<span class="link-at">01jam</span>
+					</a>
+				</li>
+				<li>
+					<a class="link devto" href="https://dev.to/01jam" target="_blank" rel="noopener">
+						<span class="link-icon">
+							<svg viewBox="0 0 24 24" aria-hidden="true">
+								<path d="M7.42 10.05c-.18-.16-.46-.23-.84-.23H6l.02 2.44.04 2.45.56-.02c.41 0 .63-.07.83-.26.24-.24.26-.36.26-2.2 0-1.91-.02-1.96-.29-2.18zM0 4.94v14.12h24V4.94H0zM8.56 15.3c-.44.58-1.06.77-2.53.77H4.71V8.53h1.4c1.67 0 2.16.18 2.6.9.27.43.29.6.32 2.57.05 2.23-.02 2.73-.47 3.3zm5.09-5.47h-2.47v1.77h1.52v1.28l-.72.04-.75.03v1.77l1.22.03 1.2.04v1.28h-1.6c-1.53 0-1.6-.01-1.87-.3l-.3-.28v-3.16c0-3.02.01-3.18.25-3.48.23-.31.25-.31 1.88-.31h1.64v1.3zm4.68 5.45c-.17.43-.64.79-1 .79-.18 0-.45-.15-.67-.39-.32-.32-.45-.63-.82-2.08l-.9-3.39-.45-1.67h.76c.4 0 .75.02.75.05 0 .06 1.16 4.54 1.26 4.83.04.15.32-.7.73-2.3l.66-2.52.74-.04c.4-.02.73 0 .73.04 0 .14-1.67 6.38-1.8 6.68z" />
+							</svg>
+						</span>
+						<span class="link-name">Dev.to</span>
+						<span class="link-at">01jam</span>
+					</a>
+				</li>
+			</ul>
+		</section>
+	</main>
 </body>
 
 </html>
