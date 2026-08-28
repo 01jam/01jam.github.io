@@ -87,7 +87,8 @@
 			border: 1px solid var(--border);
 			padding: 1px 5px;
 			border-radius: 5px;
-			white-space: nowrap;
+			white-space: pre-wrap;
+			overflow-wrap: anywhere;
 		}
 
 		pre {
@@ -485,10 +486,12 @@
 
 		.pkgs {
 			display: grid;
+			grid-template-columns: minmax(0, 1fr);
 			gap: 14px;
 		}
 
 		.pkg {
+			min-width: 0;
 			border: 1px solid var(--border);
 			border-radius: var(--radius);
 			background: var(--surface);
@@ -497,9 +500,10 @@
 
 		.pkg-head {
 			display: flex;
+			flex-wrap: wrap;
 			align-items: baseline;
 			justify-content: space-between;
-			gap: 12px;
+			gap: 4px 12px;
 			margin-bottom: 10px;
 		}
 
