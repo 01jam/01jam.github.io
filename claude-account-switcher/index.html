@@ -6,12 +6,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Claude Account Switcher — 01Jam</title>
 	<meta name="description"
-		content="A Linux desktop app that keeps several Claude Code logins side by side and switches the active one from a window or the top bar, with usage meters that can hand over automatically." />
+		content="A Linux and macOS desktop app that keeps several Claude Code logins side by side and switches the active one from a window, the tray or the menu bar, with usage meters that can hand over automatically." />
 	<meta name="theme-color" content="#faf9f7" media="(prefers-color-scheme: light)" />
 	<meta name="theme-color" content="#17140f" media="(prefers-color-scheme: dark)" />
 	<meta property="og:title" content="Claude Account Switcher" />
 	<meta property="og:description"
-		content="Several Claude Code accounts on Linux, one click apart — with usage meters that can switch for you." />
+		content="Several Claude Code accounts on Linux and macOS, one click apart — with usage meters that can switch for you." />
 	<meta property="og:type" content="website" />
 	<meta property="og:image" content="https://01jam.github.io/claude-account-switcher/img/icon-512.png" />
 	<meta property="og:url" content="https://01jam.github.io/claude-account-switcher/" />
@@ -303,7 +303,8 @@
 		/* ---------- chat ---------- */
 
 		.chat {
-			padding: 64px 0 8px;
+			padding-top: 64px;
+			padding-bottom: 8px;
 		}
 
 		.msg {
@@ -460,6 +461,42 @@
 
 		/* steps */
 
+		/* rates */
+
+		.rates {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 10px 18px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			background: var(--surface);
+			padding: 18px 20px;
+			box-shadow: var(--shadow);
+			font-size: 14.5px;
+		}
+
+		.rates dt {
+			font-weight: 600;
+			font-variant-numeric: tabular-nums;
+			white-space: nowrap;
+		}
+
+		.rates dd {
+			margin: 0;
+			color: var(--muted);
+		}
+
+		@media (max-width: 520px) {
+			.rates {
+				grid-template-columns: 1fr;
+				gap: 3px 0;
+			}
+
+			.rates dd {
+				margin-bottom: 9px;
+			}
+		}
+
 		/* ---------- get it ---------- */
 
 		.get {
@@ -528,6 +565,12 @@
 		.pkg-dl:hover {
 			text-decoration: underline;
 			text-underline-offset: 3px;
+		}
+
+		.pkg-note {
+			margin: 0;
+			font-size: 14.5px;
+			color: var(--muted);
 		}
 
 		.reqs {
@@ -635,11 +678,11 @@
 		<div class="wrap">
 			<img class="mark" src="img/icon.png" width="64" height="64"
 				alt="Claude Account Switcher icon" />
-			<p class="eyebrow">01Jam · Linux desktop app</p>
+			<p class="eyebrow">01Jam · Linux and macOS desktop app</p>
 			<h1>Claude Account Switcher</h1>
 			<p class="lead">Keep several Claude Code logins saved side by side and put the one you need back in
-				place — from the window, or from the icon in the top bar. With usage meters that can hand the
-				baton over on their own.</p>
+				place — from the window, or from the icon up top: the tray on Linux, the menu bar on macOS.
+				With usage meters that can hand the baton over on their own.</p>
 
 			<div class="chip"><span class="dot"></span><span id="release">Latest release</span></div>
 
@@ -674,11 +717,21 @@
 						<span class="dl-sub" data-size>.AppImage</span>
 					</span>
 				</a>
+				<a class="dl" data-ext=".dmg"
+					href="https://github.com/01jam/claude-account-switcher/releases/latest">
+					<svg aria-hidden="true">
+						<use href="#i-download" />
+					</svg>
+					<span>
+						<span class="dl-name">macOS</span>
+						<span class="dl-sub" data-size>.dmg</span>
+					</span>
+				</a>
 			</div>
 
-			<p class="fineprint">Linux, x86_64. Switches the login of the Claude Code CLI and the VSCode
-				extension in one go — they read the same files. It switches that login, it does not
-				replace Claude Code.</p>
+			<p class="fineprint">Linux on x86_64, and one universal macOS build for Apple silicon and Intel.
+				Switches the login of the Claude Code CLI and the VSCode extension in one go — they read the
+				same files. It switches that login, it does not replace Claude Code.</p>
 		</div>
 	</header>
 
@@ -695,17 +748,18 @@
 			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
 			<div class="body">
 				<p>That is the whole point. Claude Account Switcher keeps a saved copy of each login and puts
-					the one you pick back in place — from its window, or from the icon in the top bar without
-					leaving what you are doing.</p>
+					the one you pick back in place — from its window, or from the icon up top without leaving
+					what you are doing: the tray on Linux, the menu bar on macOS.</p>
 				<p>One switch covers both places you use Claude Code: the <strong>CLI</strong> and the
 					<strong>VSCode extension</strong> read the same login files, so the editor comes along
 					with the terminal.</p>
 				<figure class="shot">
 					<picture>
 						<source srcset="img/window-dark.webp" media="(prefers-color-scheme: dark)" />
-						<img src="img/window-light.webp" width="520" height="975" alt="The app window: three saved accounts, each with a 5-hour and a weekly usage meter, the active one highlighted." />
+						<img src="img/window-light.webp" width="520" height="1030" alt="The app window: three saved accounts, each with a 5-hour and a weekly usage meter, the active one highlighted." />
 					</picture>
-					<figcaption>The window. Accounts sit in switch order — drag a row by the handle on the left to change it.</figcaption>
+					<figcaption>The window, which draws its own title bar — there are no system decorations.
+						Accounts sit in switch order; drag a row by the handle on the left to change it.</figcaption>
 				</figure>
 			</div>
 		</div>
@@ -719,14 +773,16 @@
 		<div class="msg msg-ai reveal">
 			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
 			<div class="body">
-				<p>Two files, and of the second one only the handful of keys that say who you are.</p>
+				<p>Your login, in the two pieces Claude Code keeps it in — and of the second one only the
+					handful of keys that say who you are.</p>
 				<figure>
 					<div class="files">
 						<div>
 							<h4>What gets copied</h4>
 							<ul>
 								<li><code>~/.claude/.credentials.json</code><span>the OAuth
-										token, whole</span></li>
+										token, whole — on macOS the login keychain, under
+										<code>Claude Code-credentials</code></span></li>
 								<li><code>~/.claude.json</code><span>only the account keys —
 										<code>oauthAccount</code>,
 										<code>userID</code>, …</span></li>
@@ -747,10 +803,15 @@
 							</ul>
 						</div>
 					</div>
+					<figcaption>On macOS those two folders live under
+						<code>~/Library/Application&nbsp;Support/claude-switch/</code> instead.</figcaption>
 				</figure>
 				<p>The rest of <code>~/.claude.json</code> — your projects, history and preferences — is left
 					exactly as it is, and every write is atomic, so an interrupted switch cannot leave you
 					with half a config.</p>
+				<p>On macOS the app writes wherever it finds the login: if the keychain already holds an
+					entry it uses that, otherwise it falls back to the file. Either way the CLI reads the
+					right account, whichever of the two routes your installed version takes.</p>
 				<p class="aside">One detail worth knowing: right before each switch the live credentials are
 					copied back into the profile you are leaving. Claude Code rotates tokens while you work,
 					and without that step you would be saving a token that has already moved on.</p>
@@ -773,7 +834,7 @@
 				<figure class="shot">
 					<picture>
 						<source srcset="img/card-dark.webp" media="(prefers-color-scheme: dark)" />
-						<img src="img/card-light.webp" width="490" height="254" alt="One account card: the 5-hour session at 72% with its threshold marker at 90%, and the week at 38% with a threshold at 85%." />
+						<img src="img/card-light.webp" width="490" height="263" alt="One account card: the 5-hour session at 72% with its threshold marker at 90%, and the week at 38% with a threshold at 85%." />
 					</picture>
 					<figcaption>The filled part is what the window has spent. The upright marker is the threshold, and it drags.</figcaption>
 				</figure>
@@ -782,12 +843,57 @@
 					token.</p>
 				<p class="aside">It is not a public API. Its shape can change without notice, so every field
 					is treated as optional: if one is missing the bar shows <code>—</code> and nothing
-					downstream fires. The endpoint is also rate limited, so requests are kept sparse — a
-					response stays good for 5 minutes, and after a <code>429</code> the app goes quiet for 10
-					minutes and keeps showing the last numbers it knows instead of blanking the bars.</p>
-				<p>Usage for the accounts that are <em>not</em> active is read with their stored token. If it
-					expired, those two bars stay empty until you make the account active again — only Claude
-					Code renews tokens, and this app does not do it on its behalf.</p>
+					downstream fires.</p>
+				<p>The accounts that are <em>not</em> active are read with their stored token, and the app
+					keeps that token alive itself rather than waiting for Claude Code to do it — so the
+					meters no longer go blank on an account nobody has run <code>claude</code> under
+					lately.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>How often does it ask? That endpoint is not yours to hammer.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>It is not, and an earlier version found the edge the hard way: one request per account per
+					minute earned exactly the refusals that rate predicts.</p>
+				<p>The budget it now paces itself by is not our measurement. It comes from
+					<a href="https://github.com/realiti4/claude-swap">realiti4/claude-swap</a>, which probed
+					the endpoint deliberately and wrote down the method and the dates: roughly
+					<strong>28–30 requests an hour per account</strong>, over a trailing 60-minute window
+					rather than a bucket that refills. So each account carries its own schedule.
+				</p>
+				<figure>
+					<dl class="rates">
+						<dt>3 min</dt>
+						<dd>the floor, and as long as a reading counts as fresh</dd>
+						<dt>5 min</dt>
+						<dd>the active account, once nothing is moving</dd>
+						<dt>10 min</dt>
+						<dd>another saved account — or one already spent, which is asked slowly but never
+							abandoned: a grant can free it early</dd>
+						<dt>1 min</dt>
+						<dd>the active account within 15 points of its threshold <em>and</em> actually
+							moving — the case the whole thing exists for</dd>
+						<dt>6 → 30 min</dt>
+						<dd>after a refusal, backing off while they keep coming</dd>
+					</dl>
+					<figcaption>Every interval carries ±10% of jitter, so two machines watching the same
+						account drift apart instead of arriving together.</figcaption>
+				</figure>
+				<p>The cache lives on disk, cooldowns included, so a restart does not put every account back
+					in the queue at once — a burst is the thing that saturates the hour. A refusal is about
+					the account behind that one token, so the others keep being read; and rather than
+					blanking its meters, the app keeps showing the last numbers it knows.</p>
+				<p>Which is why cards say how old their numbers are once they pass five minutes — “numbers
+					from 3h&nbsp;ago” — and so does the tray menu, where a frozen number is easiest to
+					mistake for a live one. Kept numbers that look freshly loaded are how a spent account
+					appears to have room left.</p>
 			</div>
 		</div>
 
@@ -803,18 +909,47 @@
 				<p>That is what those thresholds are for. Drag one to say how full a window has to be before
 					the account counts as spent — 100% by default, so out of the box nothing happens until
 					you actually hit the limit.</p>
-				<p>With auto-switch on, the active account is checked <strong>every 5 minutes</strong>, and
-					as soon as <em>either</em> counter reaches its own threshold the app moves to the next
-					account in list order.</p>
+				<p>With auto-switch on, every reading of the active account is also a decision: as soon as
+					<em>either</em> counter reaches its own threshold the app moves to the next account in
+					list order. Which means it is checked as often as the schedule above says — down to the
+					minute when it is close and still climbing.
+				</p>
 				<ul>
 					<li>A candidate already past its own thresholds is skipped.</li>
 					<li>If nobody is available, the app says so and stays where it is.</li>
-					<li>An account whose usage cannot be read — usually an expired token — is treated as
-						usable. Better to try the switch than to sit still on a network error.</li>
+					<li>An account whose usage cannot be read is treated as usable. Better to try the switch
+						than to sit still on a network error.</li>
+					<li>Nothing acts on a reading older than <strong>15 minutes</strong>. Showing an old
+						number is fine — the card says how old it is — but a five-hour window that has since
+						reset still reads as full in the cache, and rotating accounts on that is a switch
+						nobody asked for.</li>
 				</ul>
-				<p>You can watch it happen without opening the window: the tray menu lists every account
-					with both of its percentages. Within 5 points of a threshold a ⚠ appears next to the
-					name, and the icon in the top bar picks up a warning badge.</p>
+				<p>You can watch it happen without opening the window: the menu behind the icon up top lists
+					every account with both of its percentages. Within 5 points of a threshold a ⚠ appears
+					next to the name, and the icon itself picks up a warning badge.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>Can it just open on whichever account has the most left?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p><strong>Start on the freest account</strong>, in Settings, off by default. Once per launch
+					it puts you on the account with the most week left — and “most” is a ratio, not a
+					percentage:</p>
+				<pre><code>room per day = (100 − week used) / days until the week resets</code></pre>
+				<p>So 20 points to make six days last is a tighter week than 70 points for one day, and the
+					second account wins. Below a day the divisor stops falling: a window resetting in ten
+					minutes is not a reason to start on an account with nothing left in it right now.</p>
+				<p class="aside">It is deliberately quiet about the cases it declines. An account whose usage
+					cannot be read is not a candidate — a comparison against a blank is not one — and a login
+					the app has never saved is left alone until you save it. When it does move, the window
+					says which account it landed on and why.</p>
 			</div>
 		</div>
 
@@ -832,13 +967,44 @@
 				<figure class="shot">
 					<picture>
 						<source srcset="img/add-dark.webp" media="(prefers-color-scheme: dark)" />
-						<img src="img/add-light.webp" width="520" height="385" alt="The Add account dialog with its three steps: sign out, open terminal, save account." />
+						<img src="img/add-light.webp" width="520" height="420" alt="The Add account dialog with its three steps: sign out, open terminal, save account." />
 					</picture>
 					<figcaption>Adding an account, one step per button.</figcaption>
 				</figure>
 				<p>And if you are already signed in the first time you open the app, you do not need any of
 					that: a <em>“Login not saved”</em> banner offers to capture the account you are on with
-					a single press.</p>
+					a single press. <strong>Save current login</strong>, at the bottom of the window, is the
+					same thing later on — for when you signed in outside the app and want the saved copy
+					brought up to date this second.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>Do the saved tokens go stale while they sit there?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>They used to. Claude Code owns the login <em>flow</em>, but not the renewal: the refresh
+					token it stores was issued to its own public client, so the same grant works from here and
+					produces exactly the credentials the CLI would have written.</p>
+				<p>A pass every 20 seconds reads a few expiry dates off disk and sends nothing at all unless
+					something is due — a <strong>stored</strong> account 30 minutes before it expires, the
+					<strong>live</strong> login only within 5 minutes of it, the same window Claude Code
+					would refresh in.
+				</p>
+				<p>Renewing the live login does not need Claude Code closed. The write goes through the very
+					lock the CLI takes for its own, and the file is re-read <em>inside</em> that lock: if a
+					session renewed first, this app stands down rather than overwriting.</p>
+				<p class="aside">A lock whose timestamp has stopped moving for 15 seconds is treated as
+					abandoned and cleared — which is also the cure for Claude Code's own <em>“another Claude
+						Code process is refreshing it or exited mid-refresh”</em>, left behind by a session
+					that died mid-write.</p>
+				<p>A refresh token that has been revoked or already spent cannot be renewed by anyone. The
+					app says so once, and that account needs a fresh <code>claude</code> login.</p>
 			</div>
 		</div>
 
@@ -852,10 +1018,10 @@
 			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
 			<div class="body">
 				<p>No — and that is a decision, not an oversight.</p>
-				<p>The switch covers the CLI and the VSCode extension, which share the two files above.
+				<p>The switch covers the CLI and the VSCode extension, which share the two pieces above.
 					Claude Desktop is an Electron app that authenticates like a browser: its session is a
 					<code>sessionKey</code> cookie inside the Chromium profile in <code>~/.config/Claude/</code>.
-					Nothing in common with the files this app moves, so it simply stays on whatever account
+					Nothing in common with what this app moves, so it simply stays on whatever account
 					you signed it into.
 				</p>
 				<p class="aside">It could be extended to cover it — the session is only a couple of hundred
@@ -875,12 +1041,15 @@
 			<div class="body">
 				<p>Two things, plainly:</p>
 				<ul>
-					<li><strong>Switch with Claude Code closed.</strong> A running session can rewrite
-						<code>~/.claude.json</code> underneath you and undo the switch.
+					<li><strong>Switch with Claude Code closed.</strong> The credentials go in under the
+						CLI's own lock, but <code>~/.claude.json</code> is not covered by it, and a running
+						session can rewrite the account keys there and undo the switch. Renewing a token is
+						the exception — that one is safe while Claude Code runs.
 					</li>
 					<li><strong>Tokens are stored in the clear</strong>, with <code>0600</code> permissions —
-						the same way Claude Code stores them itself. This is not a keyring, and it does not
-						pretend to be one.</li>
+						the same way Claude Code stores them itself. On macOS the live tokens sit in the
+						keychain, but the copies in the app's own profiles are still <code>0600</code> files.
+						This is not a keyring, and it does not pretend to be one.</li>
 				</ul>
 			</div>
 		</div>
@@ -894,20 +1063,50 @@
 		<div class="msg msg-ai reveal">
 			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
 			<div class="body">
-				<p>Settings has three switches for exactly that: <strong>launch at login</strong>, <strong>start
-						in the bar</strong> (no window on startup, just the icon up top), and
-					<strong>auto-switch</strong> itself. Closing the window leaves the app running in the
-					tray; you quit it from the tray menu.
-				</p>
+				<p>Settings has four switches: <strong>auto-switch</strong>, <strong>start on the freest
+						account</strong>, <strong>launch at login</strong>, and <strong>start in the
+						bar</strong> — no window on startup, just the icon up top.</p>
+				<p>Closing the window leaves the app running behind that icon, and you quit it from its menu.
+					Launching it again does not start a second copy: the new process hands over to the one
+					already there, which brings its window back. On macOS, so does clicking the Dock icon.</p>
 				<p>The interface speaks English and Italian, follows your system by default, and changes
 					language on the spot without a restart.</p>
 				<figure class="shot">
 					<picture>
 						<source srcset="img/settings-dark.webp" media="(prefers-color-scheme: dark)" />
-						<img src="img/settings-light.webp" width="520" height="550" alt="The Settings dialog: auto-switch and launch at login on, start in the bar off, language set to automatic." />
+						<img src="img/settings-light.webp" width="520" height="760" alt="The Settings dialog: an available update at the top, then auto-switch, start on the freest account and launch at login on, start in the bar off, language set to automatic." />
 					</picture>
-					<figcaption>Everything the app lets you decide fits in one dialog.</figcaption>
+					<figcaption>Everything the app lets you decide fits in one dialog — including, when there
+						is one, the update at the top.</figcaption>
 				</figure>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>And that update at the top — does it install itself?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>Only when you press the button. Every six hours, and once at launch, the app asks GitHub
+					for the newest release — one unauthenticated request, nothing sent but a user agent. A
+					newer tag puts a red dot on the gear in the title bar and the offer at the top of
+					Settings, with what is out, what is running, and a link to the notes.</p>
+				<p>Pressing it downloads the package into your Downloads folder, checks its size against what
+					the release says, and hands it to the <strong>system</strong> package manager under
+					<code>pkexec</code> — polkit puts up its own password dialog and takes the password
+					itself. This app never sees it, and dismissing that dialog is reported as cancelled, not
+					as a failure.</p>
+				<p>What no package manager takes is still handed over: a <code>.dmg</code> is mounted, an
+					AppImage is shown in its folder rather than opened — opening one would only start a
+					second copy of the app.</p>
+				<p class="aside">Tags are compared as three numbers, and anything else — a
+					<code>-beta.1</code>, a <code>nightly</code> — never counts as newer: guessing where it
+					sorts is how an app talks someone into a downgrade. And installing does not replace the
+					copy already running. Quit from the menu up top and start it again to be on the new one.</p>
 			</div>
 		</div>
 
@@ -916,7 +1115,8 @@
 	<section class="get" id="download">
 		<div class="wrap">
 			<h2>Get it</h2>
-			<p class="sub">Every build is a Linux x86_64 package from the latest release.</p>
+			<p class="sub">Every build comes from the latest release: Linux on x86_64, and one universal
+				macOS package that runs native on Apple silicon and Intel.</p>
 
 			<div class="pkgs">
 				<div class="pkg">
@@ -933,6 +1133,12 @@
 					<pre><code><span class="p">$</span> chmod +x claude-account-switcher_*.AppImage
 <span class="p">$</span> ./claude-account-switcher_*.AppImage</code></pre>
 				</div>
+				<div class="pkg">
+					<div class="pkg-head"><strong>macOS · Apple silicon and Intel</strong><a class="pkg-dl" data-ext=".dmg" href="https://github.com/01jam/claude-account-switcher/releases/latest">Download <span data-size>.dmg</span></a></div>
+					<p class="pkg-note">Open the disk image and drag the app into Applications. The build is
+						unsigned, so the first launch is refused until you allow it under <strong>System
+							Settings → Privacy &amp; Security</strong>.</p>
+				</div>
 			</div>
 
 			<p class="fineprint">Each release also carries a <code>SHA256SUMS</code>. Download it next to
@@ -943,13 +1149,18 @@
 			<ul class="reqs">
 				<li><strong>Claude Code</strong>, installed and able to sign in — the CLI, the VSCode
 					extension, or both. This app switches their login; it does not replace them.</li>
-				<li>The <strong>.deb</strong> and <strong>.rpm</strong> declare their runtime dependencies,
-					so your package manager pulls whatever is missing. The <strong>AppImage</strong> expects
-					WebKitGTK 4.1 and <code>libayatana-appindicator3</code> to already be on the system.</li>
+				<li>On Linux, the <strong>.deb</strong> and <strong>.rpm</strong> declare their runtime
+					dependencies, so your package manager pulls whatever is missing. The
+					<strong>AppImage</strong> expects WebKitGTK 4.1 and <code>libayatana-appindicator3</code>
+					to already be on the system.</li>
 				<li>On <strong>GNOME</strong>, the top bar shows no tray icons at all without the <a
 						href="https://extensions.gnome.org/extension/615/appindicator-support/">AppIndicator
 						and KStatusNotifierItem Support</a> extension. Without it the app still works —
 					you just only get the window.</li>
+				<li>On <strong>macOS</strong>, nothing else to install: WebKit and the menu bar are the
+					system's, and the menu-bar icon follows light and dark mode. There is no Apple Developer
+					certificate behind this project, so Gatekeeper needs the one-time allow described
+					above.</li>
 			</ul>
 
 		</div>
