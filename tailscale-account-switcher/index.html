@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Tailscale Account Switcher — 01Jam</title>
+	<meta name="description"
+		content="A Linux and macOS desktop app that lists the Tailscale accounts on this computer and switches, adds or removes them from a window or the tray — Headscale included." />
+	<meta name="theme-color" content="#f7f6f5" media="(prefers-color-scheme: light)" />
+	<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
+	<meta property="og:title" content="Tailscale Account Switcher" />
+	<meta property="og:description"
+		content="Every Tailscale account on this computer, one click apart — Tailscale's own servers and Headscale alike." />
+	<meta property="og:type" content="website" />
+	<meta property="og:image" content="https://01jam.github.io/tailscale-account-switcher/img/icon-512.png" />
+	<meta property="og:url" content="https://01jam.github.io/tailscale-account-switcher/" />
+	<link rel="icon" href="img/icon.png" />
+	<style>
+		:root {
+			--accent: #1f1e1e;
+			--accent-fg: #ffffff;
+			--accent-soft: rgb(31 30 30 / 0.06);
+			--bg: #f7f6f5;
+			--surface: #ffffff;
+			--surface-2: #f1f0ee;
+			--border: #e4e2df;
+			--text: #1f1e1e;
+			--muted: #6f6c69;
+			--warn: #b42318;
+			--radius: 12px;
+			--shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 10px 30px rgb(0 0 0 / 0.08);
+			--mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+
+			color-scheme: light dark;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root {
+				--accent: #f3f2f0;
+				--accent-fg: #121212;
+				--accent-soft: rgb(243 242 240 / 0.07);
+				--bg: #121212;
+				--surface: #1b1a1a;
+				--surface-2: #252424;
+				--border: #312f2e;
+				--text: #f3f2f0;
+				--muted: #a19e9a;
+				--warn: #f1867c;
+				--shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px rgb(0 0 0 / 0.45);
+			}
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html {
+			-webkit-text-size-adjust: 100%;
+			scroll-behavior: smooth;
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			html {
+				scroll-behavior: auto;
+			}
+		}
+
+		body {
+			margin: 0;
+			background: var(--bg);
+			color: var(--text);
+			font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+			font-size: 17px;
+			line-height: 1.6;
+			-webkit-font-smoothing: antialiased;
+		}
+
+		a {
+			color: inherit;
+		}
+
+		code {
+			font-family: var(--mono);
+			font-size: 0.86em;
+			background: var(--surface-2);
+			border: 1px solid var(--border);
+			padding: 1px 5px;
+			border-radius: 5px;
+			white-space: pre-wrap;
+			overflow-wrap: anywhere;
+		}
+
+		pre {
+			margin: 0;
+			background: var(--surface-2);
+			border: 1px solid var(--border);
+			border-radius: 10px;
+			padding: 14px 16px;
+			overflow-x: auto;
+			font-family: var(--mono);
+			font-size: 13.5px;
+			line-height: 1.7;
+		}
+
+		pre code {
+			background: none;
+			border: 0;
+			padding: 0;
+			font-size: inherit;
+			white-space: pre;
+		}
+
+		pre .p {
+			color: var(--muted);
+			user-select: none;
+		}
+
+		.wrap {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 0 24px;
+		}
+
+		/* ---------- notice ---------- */
+
+		.notice {
+			background: var(--accent-soft);
+			border-bottom: 1px solid var(--border);
+			font-size: 14.5px;
+		}
+
+		.notice-in {
+			display: flex;
+			align-items: flex-start;
+			gap: 12px;
+			padding-top: 13px;
+			padding-bottom: 13px;
+		}
+
+		.notice p {
+			flex: 1;
+			margin: 0;
+			line-height: 1.45;
+		}
+
+		.notice-icon {
+			flex: none;
+			width: 18px;
+			height: 18px;
+			margin-top: 2px;
+			color: var(--accent);
+		}
+
+		.notice-x {
+			flex: none;
+			display: grid;
+			place-items: center;
+			width: 26px;
+			height: 26px;
+			padding: 0;
+			border: 0;
+			border-radius: 7px;
+			background: none;
+			color: var(--muted);
+			cursor: pointer;
+		}
+
+		.notice-x svg {
+			width: 16px;
+			height: 16px;
+		}
+
+		.notice-x:hover {
+			background: var(--surface);
+			color: var(--text);
+		}
+
+		/* Dismissed before first paint, so the bar never flashes on a revisit. */
+		.notice-off .notice {
+			display: none;
+		}
+
+		/* ---------- hero ---------- */
+
+		.hero {
+			padding: 72px 0 56px;
+			border-bottom: 1px solid var(--border);
+			background:
+				radial-gradient(60rem 26rem at 50% -8rem, var(--accent-soft), transparent 70%);
+		}
+
+		.mark {
+			display: block;
+			width: 64px;
+			height: 64px;
+			filter: drop-shadow(0 6px 18px rgb(0 0 0 / 0.18));
+		}
+
+		.eyebrow {
+			margin: 22px 0 0;
+			font-size: 14px;
+			color: var(--muted);
+		}
+
+		h1 {
+			margin: 6px 0 0;
+			font-size: clamp(34px, 6vw, 46px);
+			line-height: 1.1;
+		}
+
+		.lead {
+			margin: 18px 0 0;
+			font-size: 19px;
+			line-height: 1.35;
+			color: var(--muted);
+			max-width: 34em;
+		}
+
+		.chip {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			margin-top: 26px;
+			padding: 5px 12px;
+			border: 1px solid var(--border);
+			background: var(--surface);
+			border-radius: 999px;
+			font-size: 13.5px;
+			color: var(--muted);
+		}
+
+		.chip .dot {
+			width: 7px;
+			height: 7px;
+			border-radius: 50%;
+			background: var(--accent);
+		}
+
+		.dls {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 12px;
+			margin-top: 18px;
+		}
+
+		.dl {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px 18px 12px 15px;
+			border: 1px solid var(--border);
+			border-radius: 10px;
+			background: var(--surface);
+			text-decoration: none;
+			box-shadow: var(--shadow);
+			transition: transform .18s ease, border-color .18s ease;
+		}
+
+		.dl:first-child {
+			background: var(--accent);
+			border-color: var(--accent);
+			color: var(--accent-fg);
+		}
+
+		.dl:first-child .dl-sub {
+			color: var(--accent-fg);
+			opacity: .78;
+		}
+
+		@media (hover: hover) {
+			.dl:hover {
+				transform: translateY(-2px);
+			}
+		}
+
+		.dl svg {
+			width: 20px;
+			height: 20px;
+			flex: none;
+		}
+
+		.dl-name {
+			display: block;
+			font-weight: 600;
+			font-size: 15px;
+			line-height: 1.25;
+		}
+
+		.dl-sub {
+			display: block;
+			font-size: 12.5px;
+			color: var(--muted);
+			font-variant-numeric: tabular-nums;
+		}
+
+		.fineprint {
+			margin: 16px 0 0;
+			font-size: 13.5px;
+			color: var(--muted);
+		}
+
+		/* ---------- chat ---------- */
+
+		.chat {
+			padding-top: 64px;
+			padding-bottom: 8px;
+		}
+
+		.msg {
+			display: flex;
+			gap: 14px;
+			margin-bottom: 34px;
+		}
+
+		.msg-user {
+			justify-content: flex-end;
+			margin-bottom: 26px;
+		}
+
+		.msg-user .body {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 16px 16px 4px 16px;
+			padding: 11px 17px;
+			max-width: 30em;
+			box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+		}
+
+		.msg-ai .body {
+			min-width: 0;
+			flex: 1;
+			padding-top: 4px;
+		}
+
+		.msg p {
+			margin: 0 0 14px;
+		}
+
+		.msg p:last-child {
+			margin-bottom: 0;
+		}
+
+		.avatar {
+			display: block;
+			width: 34px;
+			height: 34px;
+			flex: none;
+		}
+
+		.msg-ai ul {
+			margin: 0 0 14px;
+			padding-left: 20px;
+		}
+
+		.msg-ai li {
+			margin-bottom: 7px;
+		}
+
+		.msg-ai li::marker {
+			color: var(--accent);
+		}
+
+		.aside {
+			border-left: 2px solid var(--border);
+			padding: 2px 0 2px 16px;
+			margin: 0 0 14px;
+			color: var(--muted);
+			font-size: 15.5px;
+		}
+
+		/* ---------- mockups ---------- */
+
+		figure {
+			margin: 4px 0 18px;
+		}
+
+		figcaption {
+			margin-top: 10px;
+			font-size: 13.5px;
+			color: var(--muted);
+		}
+
+		.shot img {
+			display: block;
+			max-width: 100%;
+			height: auto;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			box-shadow: var(--shadow);
+			background: var(--surface);
+		}
+
+		/* tray */
+
+		/* files diagram */
+
+		.files {
+			display: grid;
+			grid-template-columns: 1fr auto 1fr;
+			align-items: center;
+			gap: 18px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			background: var(--surface);
+			padding: 20px;
+			box-shadow: var(--shadow);
+		}
+
+		.files h4 {
+			margin: 0 0 10px;
+			font-size: 13px;
+			color: var(--muted);
+			font-weight: 600;
+		}
+
+		.files ul {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			font-size: 14px;
+		}
+
+		.files li+li {
+			margin-top: 10px;
+		}
+
+		.files li span {
+			display: block;
+			font-size: 12.5px;
+			color: var(--muted);
+			margin-top: 3px;
+		}
+
+		.files code {
+			white-space: normal;
+			overflow-wrap: anywhere;
+		}
+
+		.files-to {
+			color: var(--accent);
+		}
+
+		.files-to svg {
+			width: 24px;
+			height: 24px;
+			display: block;
+		}
+
+		@media (max-width: 620px) {
+			.files {
+				grid-template-columns: 1fr;
+				gap: 14px;
+			}
+
+			.files-to {
+				transform: rotate(90deg);
+				justify-self: center;
+			}
+		}
+
+		/* commands */
+
+		.cmds {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 10px 18px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			background: var(--surface);
+			padding: 18px 20px;
+			box-shadow: var(--shadow);
+			font-size: 14.5px;
+		}
+
+		.cmds dt {
+			font-weight: 600;
+			font-variant-numeric: tabular-nums;
+			white-space: nowrap;
+		}
+
+		.cmds dd {
+			margin: 0;
+			color: var(--muted);
+		}
+
+		@media (max-width: 520px) {
+			.cmds {
+				grid-template-columns: 1fr;
+				gap: 3px 0;
+			}
+
+			.cmds dd {
+				margin-bottom: 9px;
+			}
+		}
+
+		/* ---------- get it ---------- */
+
+		.get {
+			margin-top: 64px;
+			padding: 56px 0 64px;
+			border-top: 1px solid var(--border);
+			background: var(--surface-2);
+		}
+
+		h2 {
+			margin: 0 0 8px;
+			font-size: 27px;
+		}
+
+		.sub {
+			margin: 0 0 28px;
+			color: var(--muted);
+		}
+
+		h3.small {
+			margin: 34px 0 10px;
+			font-size: 15px;
+		}
+
+		.pkgs {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr);
+			gap: 14px;
+		}
+
+		.pkg {
+			min-width: 0;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			background: var(--surface);
+			padding: 16px 18px;
+		}
+
+		.pkg-head {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: baseline;
+			justify-content: space-between;
+			gap: 4px 12px;
+			margin-bottom: 10px;
+		}
+
+		.pkg-head strong {
+			font-size: 15px;
+		}
+
+		.pkg-head>span {
+			font-size: 12.5px;
+			color: var(--muted);
+		}
+
+		.pkg-dl {
+			font-size: 13px;
+			font-weight: 600;
+			color: var(--accent);
+			text-decoration: none;
+			white-space: nowrap;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.pkg-dl:hover {
+			text-decoration: underline;
+			text-underline-offset: 3px;
+		}
+
+		.pkg-note {
+			margin: 0;
+			font-size: 14.5px;
+			color: var(--muted);
+		}
+
+		.reqs {
+			margin: 0;
+			padding-left: 20px;
+			color: var(--muted);
+			font-size: 15.5px;
+		}
+
+		.reqs li {
+			margin-bottom: 7px;
+		}
+
+		.reqs strong {
+			color: var(--text);
+			font-weight: 600;
+		}
+
+		footer {
+			padding: 34px 0 46px;
+			font-size: 13.5px;
+			color: var(--muted);
+		}
+
+		footer p {
+			margin: 0 0 10px;
+			max-width: 60ch;
+		}
+
+		footer a {
+			color: var(--accent);
+			text-decoration-color: var(--border);
+			text-underline-offset: 3px;
+		}
+
+		/* ---------- reveal on scroll (only with JS) ---------- */
+
+		.js .reveal {
+			opacity: 0;
+			transform: translateY(16px);
+			transition: opacity .55s ease, transform .55s cubic-bezier(.22, .8, .3, 1);
+		}
+
+		.js .reveal.in {
+			opacity: 1;
+			transform: none;
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.js .reveal {
+				opacity: 1;
+				transform: none;
+				transition: none;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<script>
+		document.documentElement.classList.add("js");
+		// Read before the bar paints: a reader who closed it never sees it again.
+		try {
+			if (localStorage.getItem("tas-notice") === "off") {
+				document.documentElement.classList.add("notice-off");
+			}
+		} catch (e) { }
+	</script>
+
+	<svg style="display:none" aria-hidden="true">
+		<symbol id="i-spark" viewBox="0 0 24 24" fill="currentColor">
+			<path d="M12 2.6l2.1 5.6a3 3 0 0 0 1.7 1.7l5.6 2.1-5.6 2.1a3 3 0 0 0-1.7 1.7L12 21.4l-2.1-5.6a3 3 0 0 0-1.7-1.7L2.6 12l5.6-2.1a3 3 0 0 0 1.7-1.7z" />
+		</symbol>
+		<symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round">
+			<path d="M6 6l12 12M18 6L6 18" />
+		</symbol>
+		<symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5 5-5M12 4v12" />
+		</symbol>
+		<symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M4 12h15M13 6l6 6-6 6" />
+		</symbol>
+	</svg>
+
+	<aside class="notice" id="notice">
+		<div class="wrap notice-in">
+			<svg class="notice-icon" aria-hidden="true">
+				<use href="#i-spark" />
+			</svg>
+			<p><strong>Vibe coded, and openly so.</strong> Not one line of this app was typed by hand —
+				it was prompted into existence with Claude Code, and reviewed mostly by using it. It works, though.</p>
+			<button class="notice-x" type="button" id="notice-x" aria-label="Dismiss this notice">
+				<svg aria-hidden="true">
+					<use href="#i-close" />
+				</svg>
+			</button>
+		</div>
+	</aside>
+
+	<header class="hero">
+		<div class="wrap">
+			<img class="mark" src="img/icon.png" width="64" height="64"
+				alt="Tailscale Account Switcher icon" />
+			<p class="eyebrow">01Jam · Linux and macOS desktop app</p>
+			<h1>Tailscale Account Switcher</h1>
+			<p class="lead">Every Tailscale account on this computer, one click apart — switched, added, logged back
+				in or removed from the window or from the icon up top. Tailscale's own servers and Headscale
+				alike.</p>
+
+			<div class="chip"><span class="dot"></span><span id="release">Latest release</span></div>
+
+			<div class="dls">
+				<a class="dl" data-ext=".deb"
+					href="https://github.com/01jam/tailscale-account-switcher/releases/latest">
+					<svg aria-hidden="true">
+						<use href="#i-download" />
+					</svg>
+					<span>
+						<span class="dl-name">Debian · Ubuntu</span>
+						<span class="dl-sub" data-size>.deb</span>
+					</span>
+				</a>
+				<a class="dl" data-ext=".rpm"
+					href="https://github.com/01jam/tailscale-account-switcher/releases/latest">
+					<svg aria-hidden="true">
+						<use href="#i-download" />
+					</svg>
+					<span>
+						<span class="dl-name">Fedora · openSUSE</span>
+						<span class="dl-sub" data-size>.rpm</span>
+					</span>
+				</a>
+				<a class="dl" data-ext=".appimage"
+					href="https://github.com/01jam/tailscale-account-switcher/releases/latest">
+					<svg aria-hidden="true">
+						<use href="#i-download" />
+					</svg>
+					<span>
+						<span class="dl-name">Any distro</span>
+						<span class="dl-sub" data-size>.AppImage</span>
+					</span>
+				</a>
+				<a class="dl" data-ext=".dmg"
+					href="https://github.com/01jam/tailscale-account-switcher/releases/latest">
+					<svg aria-hidden="true">
+						<use href="#i-download" />
+					</svg>
+					<span>
+						<span class="dl-name">macOS</span>
+						<span class="dl-sub" data-size>.dmg</span>
+					</span>
+				</a>
+			</div>
+
+			<p class="fineprint">Linux on x86_64, and one universal macOS build for Apple silicon and Intel. It
+				drives the Tailscale you already have installed; it does not replace it.</p>
+		</div>
+	</header>
+
+	<main class="chat wrap">
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>I am on more than one tailnet — work, a Headscale at home — and I keep typing <code>tailscale switch</code>. Can this fix that?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>That is the whole point. Tailscale Account Switcher lists every Tailscale account logged in on
+					this computer and moves between them from its window, or from the icon up top without leaving
+					what you are doing: the tray on Linux, the menu bar on macOS.</p>
+				<p>Tailscale already keeps several accounts side by side — each login is a <em>profile</em> held by
+					the daemon, its “fast user switching”. So this app stores <strong>no credentials of its
+					own</strong>: it reads the daemon and drives the <code>tailscale</code> CLI, nothing more.</p>
+				<figure class="shot">
+					<picture>
+						<source srcset="img/window-dark.webp" media="(prefers-color-scheme: dark)" />
+						<img src="img/window-light.webp" width="520" height="640" loading="lazy" alt="The app window: connected as Alex Morgan, with the IP, MagicDNS name and key expiry of the account in use, and two more accounts below with a Switch button each." />
+					</picture>
+					<figcaption>The window, which draws its own title bar. The account in use shows its address and its MagicDNS name, both one click from the clipboard; the others sit in the order you drag them into.</figcaption>
+				</figure>
+				<p>A <code>tailscale switch</code> typed in a terminal shows up in the app within a few seconds, so the two never disagree about where you are.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>What does it actually do on my machine?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>Reads one thing, runs another, and keeps one small file of its own.</p>
+				<figure>
+					<div class="files">
+						<div>
+							<h4>What it reads</h4>
+							<ul>
+								<li><code>/var/run/tailscale/tailscaled.sock</code><span>the daemon's LocalAPI — the
+										same JSON <code>tailscale status --json</code> prints, for a round-trip
+										instead of a process</span></li>
+								<li><code>tailscale status --json</code>, <code>switch --list --json</code><span>the
+										fallback where there is no socket to talk to, as with the macOS app</span></li>
+							</ul>
+						</div>
+						<div class="files-to" aria-hidden="true">
+							<svg>
+								<use href="#i-arrow" />
+							</svg>
+						</div>
+						<div>
+							<h4>What it runs</h4>
+							<ul>
+								<li><code>tailscale switch</code>, <code>up</code>, <code>down</code><span>switching,
+										connecting, disconnecting</span></li>
+								<li><code>login</code>, <code>logout</code>, <code>switch remove</code><span>adding
+										and removing accounts</span></li>
+							</ul>
+						</div>
+					</div>
+					<figcaption>Every change goes through the CLI, exactly as if you had typed it.</figcaption>
+				</figure>
+				<p>The file of its own is <code>~/.config/tailscale-switch/state.json</code>: the order you dragged
+					the list into, the window preferences, the control servers you typed before, and the server last
+					seen for each account — the CLI only reports it for the account in front.</p>
+				<p class="aside">The daemon is read every 3 seconds over the socket, every 6 over the CLI, and every
+					second while an account is coming up or a login is waiting. The read is pushed to the window
+					rather than fetched by it: the window spends most of its life hidden behind the tray icon, where
+					its timers are throttled.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>Last time I switched by hand I ended up needing <code>sudo</code> just to switch back. Why?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>Because on Linux tailscaled runs as root, and lets a normal user change anything only if that
+					user is the <strong>operator</strong> of the account in front. And the operator is a preference of
+					<em>each account</em>, not of the machine. Two consequences, both easy to trip over:</p>
+				<ul>
+					<li>switching onto an account with no operator works — and leaves you unable to switch back, or
+						even to list the accounts, without <code>sudo</code>;</li>
+					<li><code>tailscale login</code> run as a normal user moves the daemon onto a brand-new account,
+						which has no operator, then fails to start it. You are left on an empty account,
+						disconnected from the one you were on.</li>
+				</ul>
+				<p>So when the daemon refuses you the account in front, the window says so and offers <strong>Grant
+						access</strong>:</p>
+				<figure class="shot">
+					<picture>
+						<source srcset="img/access-dark.webp" media="(prefers-color-scheme: dark)" />
+						<img src="img/access-light.webp" width="520" height="640" loading="lazy" alt="A Limited access notice: Tailscale does not let alex manage this account without administrator rights, with a Grant access button and the equivalent sudo command." />
+					</picture>
+					<figcaption>Once per account — the setting stays with it. The command is right there, to copy or to run yourself.</figcaption>
+				</figure>
+				<p>It runs <code>tailscale set --operator=$USER</code> through <code>pkexec</code>: polkit draws the
+					password prompt and keeps the password, and the app only learns whether it was given. A change
+					the daemon refused is retried as soon as access is in.</p>
+				<p class="aside">None of this applies where the daemon runs as your own user, or on macOS.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>How do I add an account — including one on my own Headscale?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p><strong>Add account</strong> asks what the CLI cannot guess: which control server, how to sign in,
+					and an optional nickname.</p>
+				<figure class="shot">
+					<picture>
+						<source srcset="img/add-dark.webp" media="(prefers-color-scheme: dark)" />
+						<img src="img/add-light.webp" width="520" height="760" loading="lazy" alt="The Add an account dialog: Another server selected, headscale.example.net picked from the dropdown, sign-in in the browser." />
+					</picture>
+					<figcaption>Tailscale's own server, or another one. The dropdown holds every control server used before on this machine, plus New server… for typing a URL.</figcaption>
+				</figure>
+				<p>Then it runs <code>tailscale login</code> — as root, through the same password prompt, and with
+					<code>--operator=$USER</code>, so the new account is born drivable without root. Two ways to
+					sign in:</p>
+				<ul>
+					<li><strong>In the browser.</strong> The login link the CLI prints is opened for you and kept in
+						the dialog, to open again or copy. On Headscale that page ends with a <code>headscale nodes register</code> command an admin has to run on the server; if the tailnet wants an
+						admin to approve the device, the dialog says that instead.</li>
+					<li><strong>With a pre-auth key</strong> — a <code>tskey-auth-…</code> from Tailscale's admin
+						console, or one from <code>headscale preauthkeys create</code>. No browser, and nobody needed
+						on the server.</li>
+				</ul>
+				<figure class="shot">
+					<picture>
+						<source srcset="img/key-dark.webp" media="(prefers-color-scheme: dark)" />
+						<img src="img/key-light.webp" width="520" height="760" loading="lazy" alt="The same dialog with Pre-auth key selected and a field for the key." />
+					</picture>
+					<figcaption>With a key, the server accepts the device on the spot.</figcaption>
+				</figure>
+				<p class="aside">The key reaches the CLI through <code>--auth-key=file:</code>, in a file only you can
+					read, deleted as soon as the login ends — on the command line it would be readable by anyone on
+					the machine in the process list. The app does not keep it.</p>
+				<p>The dialog cannot be dismissed while the login runs. <strong>Cancel</strong> stops it and puts the
+					daemon back on the account you were on, because an abandoned login leaves it on the half-made
+					one. A login not completed within 10 minutes is abandoned the same way.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>What happens when a key expires?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>The account shows <strong>Login required</strong>, with the same two ways back in.</p>
+				<figure class="shot">
+					<picture>
+						<source srcset="img/login-dark.webp" media="(prefers-color-scheme: dark)" />
+						<img src="img/login-light.webp" width="520" height="640" loading="lazy" alt="The status card reads Login required: this device's key has expired, or the account was logged out, with Log in via browser and Use a key buttons." />
+					</picture>
+					<figcaption>No terminal needed, and no <code>--login-server</code> to remember.</figcaption>
+				</figure>
+				<p><strong>Log in via browser</strong> goes through the daemon's own interactive login rather than
+					<code>tailscale up</code>, which on such an account insists on being handed back every
+					non-default setting it has — <code>--login-server</code> first of all, for anyone on
+					Headscale — and refuses otherwise.</p>
+				<p><strong>Use a key</strong> opens the add dialog preset with the account's server and nickname.
+					The daemon folds the login into the existing account rather than adding a second one; it keeps
+					the new login's preferences, though, so an exit node or accepted routes need setting again —
+					and the dialog says so.</p>
+				<p>If it happens while the window is out of sight — typically hours into a session — you get a
+					desktop notification instead.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>Is removing an account the same as logging out?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>No, and the app keeps them apart.</p>
+				<figure>
+					<dl class="cmds">
+						<dt>Remove from this computer</dt>
+						<dd><code>tailscale switch remove</code> — any account but the one in front. It disappears
+							from this machine; nothing changes on the control server.</dd>
+						<dt>Log out</dt>
+						<dd><code>tailscale logout</code> — the account in front. The device disconnects and its node
+							key is invalidated on the server.</dd>
+					</dl>
+				</figure>
+				<p class="aside">The CLI silently does nothing when asked to remove the account in front, so the app
+					does not offer it.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>Can it just be there when I log in?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>Settings has <strong>launch at login</strong> and <strong>start in the bar</strong> — no window on
+					startup, just the icon up top. Closing the window leaves the app running behind that icon, and
+					its menu connects, disconnects and switches without opening anything. Launching it again does
+					not start a second copy: the one already running brings its window back.</p>
+				<p>The interface speaks English and Italian, follows your system by default, and changes language on
+					the spot.</p>
+				<figure class="shot">
+					<picture>
+						<source srcset="img/settings-dark.webp" media="(prefers-color-scheme: dark)" />
+						<img src="img/settings-light.webp" width="520" height="760" loading="lazy" alt="The Settings dialog: an available update at the top with Download and install and Release notes, then launch at login on, start in the bar off, and the language." />
+					</picture>
+					<figcaption>Everything the app lets you decide fits in one dialog — including, when there is one, the update at the top.</figcaption>
+				</figure>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>And that update — does it install itself?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>Only when you press the button. Every six hours, and once at launch, the app asks GitHub for the
+					newest release — one unauthenticated request, nothing sent but a user agent. A newer tag puts a
+					dot on the gear in the title bar and the offer at the top of Settings.</p>
+				<p>Pressing it downloads the package into your Downloads folder, checks its size against what the
+					release says, and hands it to the <strong>system</strong> package manager under
+					<code>pkexec</code> — <code>apt-get</code> for a <code>.deb</code>, <code>dnf</code>,
+					<code>zypper</code> or <code>rpm</code> for an <code>.rpm</code>. This app never sees the
+					password. A <code>.dmg</code> is mounted, an AppImage is shown in its folder.</p>
+				<p class="aside">Tags are compared as three numbers, and a <code>-beta.1</code> or a
+					<code>nightly</code> never counts as newer: guessing where it sorts is how an app talks someone
+					into a downgrade. Installing does not replace the copy already running — quit from the tray menu
+					and start it again.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
+				<p>Anything I should know first?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>Two things, plainly:</p>
+				<ul>
+					<li><strong>Switching reconnects the device.</strong> Open connections over the tailnet drop, as
+						they would with the CLI.</li>
+					<li><strong>It leans on parts Tailscale calls alpha.</strong> <code>tailscale switch</code> and
+						<code>tailscale login</code> are marked that way, and the LocalAPI is not a stable interface.
+						Both have been steady for years, but a change there is what would break this app.</li>
+				</ul>
+			</div>
+		</div>
+
+	</main>
+
+	<section class="get" id="download">
+		<div class="wrap">
+			<h2>Get it</h2>
+			<p class="sub">Every build comes from the latest release: Linux on x86_64, and one universal macOS
+				package for Apple silicon and Intel.</p>
+
+			<div class="pkgs">
+				<div class="pkg">
+					<div class="pkg-head"><strong>Debian, Ubuntu and derivatives</strong><a class="pkg-dl" data-ext=".deb" href="https://github.com/01jam/tailscale-account-switcher/releases/latest">Download <span data-size>.deb</span></a>
+					</div>
+					<pre><code><span class="p">$</span> sudo apt install ./tailscale-account-switcher_*.deb</code></pre>
+				</div>
+				<div class="pkg">
+					<div class="pkg-head"><strong>Fedora, openSUSE</strong><a class="pkg-dl" data-ext=".rpm" href="https://github.com/01jam/tailscale-account-switcher/releases/latest">Download <span data-size>.rpm</span></a></div>
+					<pre><code><span class="p">$</span> sudo dnf install ./tailscale-account-switcher-*.rpm</code></pre>
+				</div>
+				<div class="pkg">
+					<div class="pkg-head"><strong>Anything else</strong><a class="pkg-dl" data-ext=".appimage" href="https://github.com/01jam/tailscale-account-switcher/releases/latest">Download <span data-size>.AppImage</span></a></div>
+					<pre><code><span class="p">$</span> chmod +x tailscale-account-switcher_*.AppImage
+<span class="p">$</span> ./tailscale-account-switcher_*.AppImage</code></pre>
+				</div>
+				<div class="pkg">
+					<div class="pkg-head"><strong>macOS · Apple silicon and Intel</strong><a class="pkg-dl" data-ext=".dmg" href="https://github.com/01jam/tailscale-account-switcher/releases/latest">Download <span data-size>.dmg</span></a></div>
+					<p class="pkg-note">Open the disk image and drag the app into Applications. The build is
+						unsigned, so the first launch is refused until you allow it under <strong>System
+							Settings → Privacy &amp; Security</strong>. Written for macOS, but not yet tried
+						on it — reports welcome.</p>
+				</div>
+			</div>
+
+			<p class="fineprint">Each release also carries a <code>SHA256SUMS</code>. Download it next to
+				the package and run <code>sha256sum --ignore-missing -c SHA256SUMS</code> to check what you
+				got.</p>
+
+			<h3 class="small">What you need</h3>
+			<ul class="reqs">
+				<li><strong>Tailscale</strong>, installed and running. This app drives it; it does not replace
+					it.</li>
+				<li><strong>pkexec</strong> (package <code>pkexec</code>, or <code>policykit-1</code> on older
+					releases) to grant access and add accounts without a terminal. Without it the app still works,
+					and shows the <code>sudo</code> commands to run instead.</li>
+				<li>On Linux, the <strong>.deb</strong> and <strong>.rpm</strong> declare their runtime
+					dependencies. The <strong>AppImage</strong> expects WebKitGTK 4.1 and
+					<code>libayatana-appindicator3</code> to already be on the system.</li>
+				<li>On <strong>GNOME</strong>, the top bar shows no tray icons at all without the <a
+						href="https://extensions.gnome.org/extension/615/appindicator-support/">AppIndicator
+						and KStatusNotifierItem Support</a> extension. Without it the app still works — you just
+					only get the window.</li>
+			</ul>
+
+		</div>
+	</section>
+
+	<footer>
+		<div class="wrap">
+			<p>Tailscale Account Switcher is an independent tool by <a href="https://01jam.github.io/">01Jam</a>,
+				and the sibling of <a href="../claude-account-switcher/">Claude Account Switcher</a>. It is not
+				affiliated with, endorsed by, or supported by Tailscale Inc. — Tailscale is their trademark.</p>
+			<p><a href="https://github.com/01jam/tailscale-account-switcher">Source</a> · <a
+					href="https://github.com/01jam/tailscale-account-switcher/releases">Releases</a> · <a
+					href="https://01jam.github.io/">01jam.github.io</a></p>
+		</div>
+	</footer>
+
+	<script>
+		(function () {
+			var REPO = "01jam/tailscale-account-switcher";
+
+			document.getElementById("notice-x").addEventListener("click", function () {
+				document.documentElement.classList.add("notice-off");
+				try {
+					localStorage.setItem("tas-notice", "off");
+				} catch (e) { /* private window, blocked storage: it just comes back */ }
+			});
+
+			// Reveal on scroll. Without JS the .reveal rules never apply, so the
+			// page reads exactly the same, just without the fade.
+			var items = document.querySelectorAll(".reveal");
+			if (window.IntersectionObserver) {
+				var io = new IntersectionObserver(function (entries) {
+					entries.forEach(function (e) {
+						if (!e.isIntersecting) return;
+						e.target.classList.add("in");
+						io.unobserve(e.target);
+					});
+				}, { rootMargin: "0px 0px -6% 0px", threshold: 0.04 });
+				items.forEach(function (el) { io.observe(el); });
+			} else {
+				items.forEach(function (el) { el.classList.add("in"); });
+			}
+
+			// The download buttons already point at /releases/latest, which is always
+			// valid; this upgrades them to the assets themselves when the API answers.
+			fetch("https://api.github.com/repos/" + REPO + "/releases/latest", {
+				headers: { Accept: "application/vnd.github+json" }
+			}).then(function (r) {
+				if (!r.ok) throw new Error(r.status);
+				return r.json();
+			}).then(function (rel) {
+				var chip = document.getElementById("release");
+				var when = rel.published_at ? new Date(rel.published_at) : null;
+				chip.textContent = when
+					? rel.tag_name + " · " + when.toLocaleDateString(undefined, {
+						day: "numeric", month: "short", year: "numeric"
+					})
+					: rel.tag_name;
+
+				var assets = rel.assets || [];
+				document.querySelectorAll("[data-ext]").forEach(function (link) {
+					var ext = link.getAttribute("data-ext");
+					var hit = assets.filter(function (a) {
+						return a.name.toLowerCase().slice(-ext.length) === ext;
+					})[0];
+					if (!hit) return;
+					link.href = hit.browser_download_url;
+					var sub = link.querySelector("[data-size]");
+					if (sub) {
+						sub.textContent = sub.textContent + " · " +
+							(hit.size / 1048576).toFixed(1) + " MB";
+					}
+				});
+			}).catch(function () {
+				/* Offline, rate limited, or no release yet: the fallback links stand. */
+			});
+		})();
+	</script>
+</body>
+
+</html>
