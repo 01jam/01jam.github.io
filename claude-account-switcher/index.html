@@ -894,6 +894,11 @@
 					from 3h&nbsp;ago” — and so does the tray menu, where a frozen number is easiest to
 					mistake for a live one. Kept numbers that look freshly loaded are how a spent account
 					appears to have room left.</p>
+				<p class="aside">You know something a blanket <code>Retry-After</code> does not: whether
+					the reason for a refusal still applies. So <strong>Refresh</strong> lifts a running
+					cooldown and asks again — at most once every 3 minutes, so a held button cannot turn
+					into a stream of refused requests. When it is too soon, it says when the next try is
+					due.</p>
 			</div>
 		</div>
 
@@ -932,6 +937,36 @@
 
 		<div class="msg msg-user reveal">
 			<div class="body">
+				<p>If it switches while the window is closed, how do I find out?</p>
+			</div>
+		</div>
+
+		<div class="msg msg-ai reveal">
+			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
+			<div class="body">
+				<p>It tells you where you are looking, not where the window happens to be. The app spends
+					most of its life behind the icon up top, so a strip inside the window is the wrong
+					place for something that happens at three and gets read at six.</p>
+				<ul>
+					<li><strong>Window open and in front</strong> — a toast over the account list, gone in
+						a few seconds.</li>
+					<li><strong>Anywhere else</strong> — a <strong>desktop notification</strong>, through
+						whatever your system runs. That covers everything that happens on its own: an
+						auto-switch, nothing left to switch to, a token that will not renew.</li>
+				</ul>
+				<p>A message that is really a <em>state</em> is said once and then left alone. “Nothing left
+					to switch to” would be the same answer every minute, so it is announced when the
+					standstill starts and not again until something moves it — a window resetting, an
+					account freed or added, or you switching yourself. In between, the meters sitting full
+					and the badge on the icon do the telling.</p>
+				<p class="aside">A desktop with nowhere to put a notification — no notification daemon, or
+					the permission refused on macOS — fails quietly. So the message is kept and shown as a
+					toast the next time the window comes up, rather than lost.</p>
+			</div>
+		</div>
+
+		<div class="msg msg-user reveal">
+			<div class="body">
 				<p>Can it just open on whichever account has the most left?</p>
 			</div>
 		</div>
@@ -946,6 +981,9 @@
 				<p>So 20 points to make six days last is a tighter week than 70 points for one day, and the
 					second account wins. Below a day the divisor stops falling: a window resetting in ten
 					minutes is not a reason to start on an account with nothing left in it right now.</p>
+				<p>A week that has not started yet — nothing spent, no reset date — is not a week to ration:
+					its seven days begin when you pick the account up, so it ranks ahead of every week
+					already running.</p>
 				<p class="aside">It is deliberately quiet about the cases it declines. An account whose usage
 					cannot be read is not a candidate — a comparison against a blank is not one — and a login
 					the app has never saved is left alone until you save it. When it does move, the window
@@ -962,15 +1000,16 @@
 		<div class="msg msg-ai reveal">
 			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
 			<div class="body">
-				<p>Claude Code owns the login flow, so the app works around it rather than through it —
-					three steps, all in the <strong>Add account</strong> dialog:</p>
-				<figure class="shot">
-					<picture>
-						<source srcset="img/add-dark.webp" media="(prefers-color-scheme: dark)" />
-						<img src="img/add-light.webp" width="520" height="420" alt="The Add account dialog with its three steps: sign out, open terminal, save account." />
-					</picture>
-					<figcaption>Adding an account, one step per button.</figcaption>
-				</figure>
+				<p><strong>Add account</strong> opens a sign-in window of the app's own on claude.ai and runs
+					the same sign-in <code>claude /login</code> runs — so the tokens that come out are exactly
+					the ones the CLI would have saved. No terminal, no code to paste, and no signing out of
+					the account you are on: the window spots the redirect at the end and takes it from
+					there.</p>
+				<p>Each account keeps <strong>its own browser data</strong>. A new sign-in starts from
+					empty, so a claude.ai session already open somewhere else cannot answer for the account
+					you meant to add. Whatever account the sign-in ends up as is what gets saved, matched by
+					email: one already in the list is updated in place, anything else becomes a new
+					account. Closing the window halfway changes nothing.</p>
 				<p>And if you are already signed in the first time you open the app, you do not need any of
 					that: a <em>“Login not saved”</em> banner offers to capture the account you are on with
 					a single press. <strong>Save current login</strong>, at the bottom of the window, is the
@@ -988,9 +1027,9 @@
 		<div class="msg msg-ai reveal">
 			<img class="avatar" src="img/icon.png" width="34" height="34" alt="" />
 			<div class="body">
-				<p>They used to. Claude Code owns the login <em>flow</em>, but not the renewal: the refresh
-					token it stores was issued to its own public client, so the same grant works from here and
-					produces exactly the credentials the CLI would have written.</p>
+				<p>They used to. The refresh token a login stores was issued to Claude Code's own public
+					client, so the same grant works from here and produces exactly the credentials the CLI
+					would have written — the app renews them itself.</p>
 				<p>A pass every 20 seconds reads a few expiry dates off disk and sends nothing at all unless
 					something is due — a <strong>stored</strong> account 30 minutes before it expires, the
 					<strong>live</strong> login only within 5 minutes of it, the same window Claude Code
@@ -1004,7 +1043,21 @@
 						Code process is refreshing it or exited mid-refresh”</em>, left behind by a session
 					that died mid-write.</p>
 				<p>A refresh token that has been revoked or already spent cannot be renewed by anyone. The
-					app says so once, and that account needs a fresh <code>claude</code> login.</p>
+					app reads the refusal before believing it — a request merely worded differently is
+					retried once, the way Claude Code does — and only then says so, once. The account's
+					card keeps a red mark for as long as it lasts, with the endpoint's own reason in its
+					tooltip; pressing it opens <strong>Sign in again</strong>, which reopens that account's
+					own browser data, so while its claude.ai session is still alive it is one click on
+					<em>Authorize</em>.</p>
+				<figure class="shot">
+					<picture>
+						<source srcset="img/card-error-dark.webp" media="(prefers-color-scheme: dark)" />
+						<img src="img/card-error-light.webp" width="490" height="263" alt="An account card with a red warning mark next to its menu: the stored token could not be renewed." />
+					</picture>
+					<figcaption>The red mark: this token will not renew. Press it to sign the account in again.</figcaption>
+				</figure>
+				<p class="aside"><strong>Renew token</strong>, in each account's menu, does it right away
+					whatever the expiry says.</p>
 			</div>
 		</div>
 
@@ -1074,7 +1127,7 @@
 				<figure class="shot">
 					<picture>
 						<source srcset="img/settings-dark.webp" media="(prefers-color-scheme: dark)" />
-						<img src="img/settings-light.webp" width="520" height="760" alt="The Settings dialog: an available update at the top, then auto-switch, start on the freest account and launch at login on, start in the bar off, language set to automatic." />
+						<img src="img/settings-light.webp" width="520" height="840" alt="The Settings dialog: an available update at the top, then auto-switch, start on the freest account and launch at login on, start in the bar off, language set to automatic." />
 					</picture>
 					<figcaption>Everything the app lets you decide fits in one dialog — including, when there
 						is one, the update at the top.</figcaption>
